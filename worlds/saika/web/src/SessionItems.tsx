@@ -49,7 +49,7 @@ export function SessionItems() {
 
 function ItemRow({ item }: { item: Item }) {
 	return (
-		<div className="group flex flex-row items-center gap-1">
+		<div className="group flex flex-row items-center gap-0.5">
 			<button
 				type="button"
 				className={twMerge(
