@@ -1,0 +1,3 @@
+pywebview[gtk]>=6.1; sys_platform == 'linux'
+pywebview>=6.1; sys_platform != 'linux'
+cryptography>=46.0.3

@@ -1,0 +1,3 @@
+@function --darken(--color, --percent) {
+	result: color-mix(in oklab, var(--color), black var(--percent));
+}
