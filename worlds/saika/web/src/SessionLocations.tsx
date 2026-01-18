@@ -62,7 +62,7 @@ function LocationButton(location: LocationButtonProps) {
 					type="button"
 					ref={ref}
 					className={twMerge(
-						"flex flex-row w-full items-center gap-2.5 rounded px-3 py-1.5 transition hover:bg-white/10",
+						"flex flex-row w-full items-center gap-2 rounded px-3 py-1.5 transition hover:bg-white/10",
 						location.status === "reachable" &&
 							"text-primary-300 hover:bg-primary-800/20",
 						location.status === "checked" && "brightness-60",
@@ -98,7 +98,7 @@ function LocationButton(location: LocationButtonProps) {
 						animationRef.current?.cancel()
 					}}
 				>
-					<span className="-mx-1">
+					<span className="-mx-0.5">
 						{location.status === "unreachable" ? (
 							<Icon icon="mingcute:round-line" />
 						) : location.status === "reachable" ? (

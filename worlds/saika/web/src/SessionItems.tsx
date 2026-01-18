@@ -54,13 +54,13 @@ function ItemRow({ item }: { item: Item }) {
 				type="button"
 				className={twMerge(
 					"shrink min-w-0",
-					"flex flex-row items-center gap-2.5 rounded px-3 py-1.5 transition hover:bg-gray-800",
+					"flex flex-row items-center gap-2 rounded px-3 py-1.5 transition hover:bg-gray-800",
 					item.type === "progression" && "text-pink-300",
 					item.type === "useful" && "text-purple-300",
 					item.type === "filler" && "text-cyan-300",
 				)}
 			>
-				<span title={item.type} className="-mx-1">
+				<span title={item.type} className="-mx-0.5">
 					{item.type === "progression" ? (
 						<Icon icon="mingcute:heart-fill" />
 					) : item.type === "useful" ? (
@@ -74,7 +74,7 @@ function ItemRow({ item }: { item: Item }) {
 
 				{item.used > 0 && (
 					<span className="text-gray-400 hover:text-gray-200 transition">
-						({item.used}/{item.count})
+						({item.count - item.used}/{item.count})
 					</span>
 				)}
 			</button>
