@@ -42,3 +42,14 @@ export function SessionHints() {
 		</ul>
 	)
 }
+
+function HintElement() {
+	return (
+		<>
+			<ItemText name="Item" kind="progression" /> is at{" "}
+			<span className="text-green-300">Location</span> in{" "}
+			<span className="text-blue-300">Player</span>'s world.{" "}
+			<span className="text-green-300">(priority)</span>
+		</>
+	)
+}
