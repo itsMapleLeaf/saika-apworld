@@ -62,7 +62,7 @@ export function SessionView(props: {
 	const containerSize = useElementSize(containerRef)
 
 	const views = Object.entries(
-		containerSize.width < 640 && containerSize.height < 640
+		containerSize.width < 640 || containerSize.height < 640
 			? narrowScreenViewMap
 			: wideScreenViewMap,
 	).map(([id, view]) => ({
