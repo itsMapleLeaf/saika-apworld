@@ -1,12 +1,13 @@
 import { Icon } from "./Icon.tsx"
 import { twMerge } from "tailwind-merge"
+import { type ItemKind, ItemText } from "./ItemText.tsx"
 
 type Item = {
 	id: string
 	name: string
 	count: number
 	used: number
-	type: "filler" | "useful" | "progression" | "trap"
+	kind: ItemKind
 	note?: string
 }
 
@@ -16,28 +17,28 @@ const items: Item[] = [
 		name: "Item 1",
 		count: 3,
 		used: 2,
-		type: "progression",
+		kind: "progression",
 		note: "hi",
 	},
 	{
 		id: crypto.randomUUID(),
 		count: 1,
 		used: 0,
-		type: "useful",
+		kind: "useful",
 		name: "Item 2",
 	},
 	{
 		id: crypto.randomUUID(),
 		count: 1,
-		used: 0,
-		type: "trap",
+		used: 1,
+		kind: "trap",
 		name: "Bomb",
 	},
 	{
 		id: crypto.randomUUID(),
 		count: 1,
 		used: 1,
-		type: "filler",
+		kind: "filler",
 		name: "Very very very very very very very very very very very long item name",
 	},
 ]
@@ -62,25 +63,9 @@ function ItemRow({ item }: { item: Item }) {
 				className={twMerge(
 					"shrink min-w-0",
 					"flex flex-row items-center gap-2 rounded px-3 py-1.5 transition hover:bg-gray-800",
-					item.type === "progression" && "text-pink-300",
-					item.type === "useful" && "text-purple-300",
-					item.type === "trap" && "text-red-300",
-					item.type === "filler" && "text-cyan-300",
 				)}
 			>
-				<span title={item.type} className="-mx-0.5">
-					{item.type === "progression" ? (
-						<Icon icon="mingcute:heart-fill" />
-					) : item.type === "useful" ? (
-						<Icon icon="mingcute:star-fill" />
-					) : item.type === "trap" ? (
-						<Icon icon="mingcute:bomb-fill" />
-					) : (
-						<Icon icon="mingcute:package-2-fill" />
-					)}
-				</span>
-
-				<span className="truncate flex-1 min-w-0">{item.name}</span>
+				<ItemText name={item.name} kind={item.kind} />
 
 				{item.used > 0 && (
 					<span className="text-gray-400 hover:text-gray-200 transition">
