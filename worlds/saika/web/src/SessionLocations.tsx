@@ -62,7 +62,7 @@ function LocationButton(location: LocationButtonProps) {
 					type="button"
 					ref={ref}
 					className={twMerge(
-						"flex flex-row w-full items-center gap-2 rounded px-3 py-1.5 transition hover:bg-white/10",
+						"flex flex-row w-full items-center gap-2 rounded px-3 py-1.5 transition hover:bg-white/10 text-start",
 						location.status === "reachable" &&
 							"text-primary-300 hover:bg-primary-800/20",
 						location.status === "checked" && "brightness-60",
@@ -107,7 +107,7 @@ function LocationButton(location: LocationButtonProps) {
 							<Icon icon="mingcute:check-circle-fill" />
 						)}
 					</span>
-					<span className="flex-1 min-w-0 truncate">
+					<span className="shrink-1 min-w-0">
 						{/* <div className="truncate">{location.name}</div> */}
 						{location.name}
 					</span>

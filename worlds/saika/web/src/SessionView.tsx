@@ -1,14 +1,11 @@
 import { Tabs } from "@base-ui-components/react"
-import {
-	type ReactNode,
-	type RefObject,
-	useEffect,
-	useRef,
-	useState,
-} from "react"
+import { type ReactNode, useRef } from "react"
 import { Icon } from "./Icon.tsx"
 import { SessionLocations } from "./SessionLocations.tsx"
 import { SessionItems } from "./SessionItems.tsx"
+import { SessionHints } from "./SessionHints.tsx"
+import { useElementSize } from "./hooks.ts"
+import { SessionChat } from "./SessionChat.tsx"
 
 export function SessionView(props: {
 	serverAddress: string
@@ -41,11 +38,11 @@ export function SessionView(props: {
 		},
 		chat: {
 			icon: "mingcute:message-2-fill",
-			content: <>Chat</>,
+			content: <SessionChat />,
 		},
 		hints: {
 			icon: "mingcute:question-fill",
-			content: <>Hints</>,
+			content: <SessionHints />,
 		},
 		...commonViewMap,
 	} satisfies ViewMap
@@ -54,10 +51,14 @@ export function SessionView(props: {
 		tracker: {
 			icon: "mingcute:checkbox-fill",
 			content: (
-				<div className="grid size-full auto-rows-fr grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)] gap-2">
-					<div className="">{narrowScreenViewMap.locations.content}</div>
-					<div className="">{narrowScreenViewMap.items.content}</div>
-					<div className="col-span-full">
+				<div className="grid size-full auto-rows-fr grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)] gap-2 ">
+					<div className="bg-gray-900 p-1 rounded ">
+						{narrowScreenViewMap.locations.content}
+					</div>
+					<div className="bg-gray-900 p-1 rounded ">
+						{narrowScreenViewMap.items.content}
+					</div>
+					<div className="bg-gray-900 p-1 rounded col-span-full">
 						{narrowScreenViewMap.hints.content}
 					</div>
 					<div className="col-span-full">
@@ -84,57 +85,29 @@ export function SessionView(props: {
 	const currentView = views.find((v) => v.id === props.viewId) ?? views[0]
 
 	return (
-		<div ref={containerRef} className="size-full">
-			<Tabs.Root
-				className="flex h-full flex-col gap-2 p-2"
-				value={currentView?.id}
-				onValueChange={props.onViewIdChange}
-			>
-				<Tabs.List className="flex gap-2 overflow-x-auto">
-					{views.map((view) => (
-						<Tabs.Tab
-							key={view.id}
-							value={view.id}
-							className="flex h-10 items-center gap-2 rounded px-3 capitalize opacity-75 transition hover:bg-gray-800 data-active:bg-gray-800 data-active:opacity-100"
-						>
-							<Icon icon={view.icon} className="-mx-0.5 size-5 shrink-0" />
-							{view.id}
-						</Tabs.Tab>
-					))}
-				</Tabs.List>
+		<Tabs.Root
+			ref={containerRef}
+			className="flex size-full flex-col gap-2 p-2"
+			value={currentView?.id}
+			onValueChange={props.onViewIdChange}
+		>
+			<Tabs.List className="flex gap-2 overflow-x-auto">
 				{views.map((view) => (
-					<Tabs.Panel key={view.id} value={view.id} className="flex-1">
-						{view.content}
-					</Tabs.Panel>
+					<Tabs.Tab
+						key={view.id}
+						value={view.id}
+						className="flex h-10 items-center gap-2 rounded px-3 capitalize opacity-75 transition hover:bg-gray-800 data-active:bg-gray-800 data-active:opacity-100"
+					>
+						<Icon icon={view.icon} className="-mx-0.5 size-5 shrink-0" />
+						{view.id}
+					</Tabs.Tab>
 				))}
-			</Tabs.Root>
-		</div>
+			</Tabs.List>
+			{views.map((view) => (
+				<Tabs.Panel key={view.id} value={view.id} className="flex-1 min-h-0">
+					{view.content}
+				</Tabs.Panel>
+			))}
+		</Tabs.Root>
 	)
-}
-
-function useElementSize(ref: RefObject<Element | null>) {
-	const [width, setWidth] = useState(0)
-	const [height, setHeight] = useState(0)
-
-	useEffect(() => {
-		if (!ref.current) return
-
-		setWidth(ref.current.clientWidth)
-		setHeight(ref.current.clientHeight)
-
-		const observer = new ResizeObserver((entries) => {
-			const entry = entries.at(-1)
-			if (!entry) {
-				console.warn("No resize entries")
-				return
-			}
-			setWidth(entry.contentRect.width)
-			setHeight(entry.contentRect.height)
-		})
-
-		observer.observe(ref.current)
-		return () => observer.disconnect()
-	}, [ref])
-
-	return { width, height }
 }
