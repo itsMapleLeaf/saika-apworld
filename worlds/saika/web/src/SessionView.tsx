@@ -7,6 +7,8 @@ import {
 	useState,
 } from "react"
 import { Icon } from "./Icon.tsx"
+import { SessionLocations } from "./SessionLocations.tsx"
+import { SessionItems } from "./SessionItems.tsx"
 
 export function SessionView(props: {
 	serverAddress: string
@@ -33,9 +35,18 @@ export function SessionView(props: {
 			icon: "mingcute:map-fill",
 			content: <SessionLocations />,
 		},
-		items: { icon: "mingcute:package-2-fill", content: <>Items</> },
-		chat: { icon: "mingcute:message-2-fill", content: <>Chat</> },
-		hints: { icon: "mingcute:question-fill", content: <>Hints</> },
+		items: {
+			icon: "mingcute:package-2-fill",
+			content: <SessionItems />,
+		},
+		chat: {
+			icon: "mingcute:message-2-fill",
+			content: <>Chat</>,
+		},
+		hints: {
+			icon: "mingcute:question-fill",
+			content: <>Hints</>,
+		},
 		...commonViewMap,
 	} satisfies ViewMap
 
@@ -126,39 +137,4 @@ function useElementSize(ref: RefObject<Element | null>) {
 	}, [ref])
 
 	return { width, height }
-}
-
-function SessionLocations() {
-	return (
-		<ul className="flex flex-col gap-1">
-			{["Location 1", "Location 2", "Location 3"].map((loc) => (
-				<li key={loc}>
-					<div className="group flex flex-row items-center gap-1">
-						<button
-							type="button"
-							className="flex flex-row items-center gap-2 rounded px-3 py-1.5 transition hover:bg-gray-800"
-						>
-							<Icon icon="mingcute:square-line" className="-mx-0.5" />
-							{/* <Icon icon="mingcute:checkbox-fill" /> */}
-							{loc}
-						</button>
-
-						<button
-							type="button"
-							className="rounded p-2 opacity-0 transition hover:bg-gray-800 group-hover:opacity-100"
-						>
-							<Icon icon="mingcute:copy-2-fill" />
-						</button>
-
-						<button
-							type="button"
-							className="rounded p-2 opacity-0 transition hover:bg-gray-800 group-hover:opacity-100"
-						>
-							<Icon icon="mingcute:edit-4-fill" />
-						</button>
-					</div>
-				</li>
-			))}
-		</ul>
-	)
 }

@@ -7,7 +7,7 @@ export function Icon({
 	...props
 }: ComponentProps<"span"> & { icon: string }) {
 	return (
-		<span {...props} className={twMerge("size-5", props.className)}>
+		<span {...props} className={twMerge("size-5 block", props.className)}>
 			<BaseIcon icon={icon} className="size-full" />
 		</span>
 	)
