@@ -54,7 +54,7 @@ export function SessionView(props: {
 		tracker: {
 			icon: "mingcute:checkbox-fill",
 			content: (
-				<div className="grid size-full auto-rows-fr grid-cols-[3fr_2fr] gap-2">
+				<div className="grid size-full auto-rows-fr grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)] gap-2">
 					<div className="">{narrowScreenViewMap.locations.content}</div>
 					<div className="">{narrowScreenViewMap.items.content}</div>
 					<div className="col-span-full">

@@ -18,7 +18,7 @@ const locations: LocationButtonProps[] = [
 	},
 	{
 		id: crypto.randomUUID(),
-		name: "Location 3",
+		name: "Very very very very very very very very very very very very very very long location name",
 		status: "checked",
 		hint: "there's a thing",
 		hintViewed: true,
