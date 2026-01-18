@@ -6,7 +6,7 @@ type Item = {
 	name: string
 	count: number
 	used: number
-	type: "filler" | "useful" | "progression"
+	type: "filler" | "useful" | "progression" | "trap"
 	note?: string
 }
 
@@ -25,6 +25,13 @@ const items: Item[] = [
 		used: 0,
 		type: "useful",
 		name: "Item 2",
+	},
+	{
+		id: crypto.randomUUID(),
+		count: 1,
+		used: 0,
+		type: "trap",
+		name: "Bomb",
 	},
 	{
 		id: crypto.randomUUID(),
@@ -57,6 +64,7 @@ function ItemRow({ item }: { item: Item }) {
 					"flex flex-row items-center gap-2 rounded px-3 py-1.5 transition hover:bg-gray-800",
 					item.type === "progression" && "text-pink-300",
 					item.type === "useful" && "text-purple-300",
+					item.type === "trap" && "text-red-300",
 					item.type === "filler" && "text-cyan-300",
 				)}
 			>
@@ -65,6 +73,8 @@ function ItemRow({ item }: { item: Item }) {
 						<Icon icon="mingcute:heart-fill" />
 					) : item.type === "useful" ? (
 						<Icon icon="mingcute:star-fill" />
+					) : item.type === "trap" ? (
+						<Icon icon="mingcute:bomb-fill" />
 					) : (
 						<Icon icon="mingcute:package-2-fill" />
 					)}
