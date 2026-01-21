@@ -1,17 +1,9 @@
-import { Icon } from "./Icon.tsx"
 import { twMerge } from "tailwind-merge"
-import { type ItemKind, ItemText } from "./ItemText.tsx"
+import { Icon } from "./Icon.tsx"
+import { ItemText } from "./ItemText.tsx"
+import type { ItemData } from "./types.ts"
 
-type Item = {
-	id: string
-	name: string
-	count: number
-	used: number
-	kind: ItemKind
-	note?: string
-}
-
-const items: Item[] = [
+const items: ItemData[] = [
 	{
 		id: crypto.randomUUID(),
 		name: "Item 1",
@@ -55,20 +47,20 @@ export function SessionItems() {
 	)
 }
 
-function ItemRow({ item }: { item: Item }) {
+function ItemRow({ item }: { item: ItemData }) {
 	return (
 		<div className="group flex flex-row items-center gap-0.5">
 			<button
 				type="button"
 				className={twMerge(
-					"shrink min-w-0",
+					"min-w-0 shrink",
 					"flex flex-row items-center gap-2 rounded px-3 py-1.5 transition hover:bg-gray-800",
 				)}
 			>
 				<ItemText name={item.name} kind={item.kind} />
 
 				{item.used > 0 && (
-					<span className="text-gray-400 hover:text-gray-200 transition">
+					<span className="text-gray-400 transition hover:text-gray-200">
 						({item.count - item.used}/{item.count})
 					</span>
 				)}

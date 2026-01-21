@@ -1,11 +1,11 @@
 import { Tabs } from "@base-ui-components/react"
 import { type ReactNode, useRef } from "react"
-import { Icon } from "./Icon.tsx"
-import { SessionLocations } from "./SessionLocations.tsx"
-import { SessionItems } from "./SessionItems.tsx"
-import { SessionHints } from "./SessionHints.tsx"
 import { useElementSize } from "./hooks.ts"
+import { Icon } from "./Icon.tsx"
 import { SessionChat } from "./SessionChat.tsx"
+import { SessionHints } from "./SessionHints.tsx"
+import { SessionItems } from "./SessionItems.tsx"
+import { SessionLocations } from "./SessionLocations.tsx"
 
 export function SessionView(props: {
 	serverAddress: string
@@ -51,14 +51,14 @@ export function SessionView(props: {
 		tracker: {
 			icon: "mingcute:checkbox-fill",
 			content: (
-				<div className="grid size-full auto-rows-fr grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)] gap-2 ">
-					<div className="bg-gray-900 p-1 rounded ">
+				<div className="grid size-full auto-rows-fr grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)] gap-2">
+					<div className="rounded bg-gray-900 p-1">
 						{narrowScreenViewMap.locations.content}
 					</div>
-					<div className="bg-gray-900 p-1 rounded ">
+					<div className="rounded bg-gray-900 p-1">
 						{narrowScreenViewMap.items.content}
 					</div>
-					<div className="bg-gray-900 p-1 rounded col-span-full">
+					<div className="col-span-full rounded bg-gray-900 p-1">
 						{narrowScreenViewMap.hints.content}
 					</div>
 					<div className="col-span-full">
@@ -104,7 +104,7 @@ export function SessionView(props: {
 				))}
 			</Tabs.List>
 			{views.map((view) => (
-				<Tabs.Panel key={view.id} value={view.id} className="flex-1 min-h-0">
+				<Tabs.Panel key={view.id} value={view.id} className="min-h-0 flex-1">
 					{view.content}
 				</Tabs.Panel>
 			))}

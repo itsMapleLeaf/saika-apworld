@@ -1,8 +1,13 @@
 import { ItemText } from "./ItemText.tsx"
+import type { HintData, ItemData } from "./types.ts"
+
+const _hints: HintData[] = [
+	/* todo */
+]
 
 export function SessionHints() {
 	return (
-		<ul className="flex flex-col gap-2 py-1.5 px-2">
+		<ul className="flex flex-col gap-2 px-2 py-1.5">
 			<li>
 				<ItemText name="Item" kind="progression" /> is at{" "}
 				<span className="text-green-300">Location</span> in{" "}
@@ -43,13 +48,35 @@ export function SessionHints() {
 	)
 }
 
-function HintElement() {
+function _HintRow({
+	item,
+	location,
+	entrance,
+	player,
+	isSelf,
+	status,
+}: {
+	item: ItemData
+	location: string
+	entrance?: string
+	player: string
+	isSelf: boolean
+	status: "priority" | "no priority" | "avoid" | "found"
+}) {
 	return (
-		<>
-			<ItemText name="Item" kind="progression" /> is at{" "}
-			<span className="text-green-300">Location</span> in{" "}
-			<span className="text-blue-300">Player</span>'s world.{" "}
-			<span className="text-green-300">(priority)</span>
-		</>
+		<div>
+			<ItemText name={item.name} kind={item.kind} /> is at{" "}
+			<span className="text-green-300">{location}</span>{" "}
+			{entrance && (
+				<>
+					at <span className="text-yellow-300">{entrance}</span>{" "}
+				</>
+			)}
+			in{" "}
+			<span className={isSelf ? "text-pink-300" : "text-blue-300"}>
+				{player}
+			</span>
+			's world. <span className="text-green-300">({status})</span>
+		</div>
 	)
 }

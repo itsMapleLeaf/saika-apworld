@@ -1,11 +1,11 @@
 import { Fragment } from "react/jsx-runtime"
-import { ItemText } from "./ItemText.tsx"
 import { Icon } from "./Icon.tsx"
+import { ItemText } from "./ItemText.tsx"
 
 export function SessionChat() {
 	return (
-		<div className="flex flex-col gap-2 size-full">
-			<ul className="flex flex-col gap-2 py-1.5 px-2 bg-gray-900 p-1 rounded flex-1 min-h-0 overflow-y-auto">
+		<div className="flex size-full flex-col gap-2">
+			<ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded bg-gray-900 p-1 px-2 py-1.5">
 				{Array.from({ length: 100 }).map((_, i) => (
 					<Fragment key={i}>
 						<li>
@@ -49,12 +49,12 @@ export function SessionChat() {
 			</ul>
 			<div className="flex gap-2">
 				<textarea
-					className="bg-gray-900 px-3 py-2 rounded w-full field-sizing-content flex-1"
+					className="field-sizing-content w-full flex-1 rounded bg-gray-900 px-3 py-2"
 					placeholder="Say something..."
 				/>
 				<button
 					type="button"
-					className="h-full aspect-square hover:bg-gray-800 transition rounded flex items-center justify-center"
+					className="flex aspect-square h-full items-center justify-center rounded transition hover:bg-gray-800"
 				>
 					<Icon icon="mingcute:send-fill" />
 				</button>

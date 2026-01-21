@@ -1,8 +1,9 @@
+import { useRef } from "react"
 import { twMerge } from "tailwind-merge"
 import { Icon } from "./Icon.tsx"
-import { useRef } from "react"
+import type { LocationData } from "./types.ts"
 
-const locations: LocationButtonProps[] = [
+const locations: LocationData[] = [
 	{
 		id: crypto.randomUUID(),
 		name: "Location 1",
@@ -52,17 +53,17 @@ function LocationButton(location: LocationButtonProps) {
 	const animationRef = useRef<Animation>(null)
 
 	return (
-		<div className="group flex flex-row items-center gap-0.5 relative isolate">
-			<div className="relative shrink min-w-0">
+		<div className="group relative isolate flex flex-row items-center gap-0.5">
+			<div className="relative min-w-0 shrink">
 				<span
 					ref={progressRef}
-					className="bg-primary-400/25 w-0 rounded absolute inset-0 -z-10"
+					className="absolute inset-0 -z-10 w-0 rounded bg-primary-400/25"
 				/>
 				<button
 					type="button"
 					ref={ref}
 					className={twMerge(
-						"flex flex-row w-full items-center gap-2 rounded px-3 py-1.5 transition hover:bg-white/10 text-start",
+						"flex w-full flex-row items-center gap-2 rounded px-3 py-1.5 text-start transition hover:bg-white/10",
 						location.status === "reachable" &&
 							"text-primary-300 hover:bg-primary-800/20",
 						location.status === "checked" && "brightness-60",
@@ -107,7 +108,7 @@ function LocationButton(location: LocationButtonProps) {
 							<Icon icon="mingcute:check-circle-fill" />
 						)}
 					</span>
-					<span className="shrink-1 min-w-0">
+					<span className="min-w-0 shrink-1">
 						{/* <div className="truncate">{location.name}</div> */}
 						{location.name}
 					</span>

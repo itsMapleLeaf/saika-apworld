@@ -1,4 +1,4 @@
-import { type RefObject, useState, useEffect } from "react"
+import { type RefObject, useEffect, useState } from "react"
 
 export function useElementSize(ref: RefObject<Element | null>) {
 	const [width, setWidth] = useState(0)

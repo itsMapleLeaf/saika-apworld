@@ -1,13 +1,12 @@
 import { twMerge } from "tailwind-merge"
 import { Icon } from "./Icon.tsx"
-
-export type ItemKind = "filler" | "useful" | "progression" | "trap"
+import type { ItemKind } from "./types.ts"
 
 export function ItemText({ name, kind }: { name: string; kind: ItemKind }) {
 	return (
 		<span
 			className={twMerge(
-				"inline-flex items-baseline gap-2 shrink min-w-0 max-w-full text-start",
+				"inline-flex min-w-0 max-w-full shrink items-baseline gap-2 text-start",
 				kind === "progression" && "text-pink-300",
 				kind === "useful" && "text-purple-300",
 				kind === "trap" && "text-red-300",
@@ -25,7 +24,7 @@ export function ItemText({ name, kind }: { name: string; kind: ItemKind }) {
 					<Icon icon="mingcute:package-2-fill" />
 				)}
 			</span>
-			<span className="shrink min-w-0">{name}</span>
+			<span className="min-w-0 shrink">{name}</span>
 		</span>
 	)
 }
