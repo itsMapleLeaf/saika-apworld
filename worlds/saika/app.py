@@ -41,22 +41,35 @@ class Session:
 
 def thread_main(*args):
     async def main(input: SessionInput, stop_queue: Queue):
-        from CommonClient import CommonContext
+        from worlds.tracker.TrackerClient import TrackerGameContext
 
-        ctx = CommonContext(
+        def handle_update_locations(locations: list[str]):
+            print("handle_update_locations", locations)
+            return True
+
+        def handle_update_events(events: list[str]):
+            print("handle_update_events", events)
+            return True
+
+        ctx = TrackerGameContext(
             f"wss://{input["server_address"]}", input["server_password"]
         )
         ctx.auth = input["player_name"]
         ctx.game = input["game_name"]
+        ctx.tags = {"Saika"}
+        ctx.update_callback = handle_update_locations
+        ctx.events_callback = handle_update_events
 
         print("connecting...")
-
         await ctx.connect()
 
-        print("connection open")
+        print("generating...")
+        await asyncio.to_thread(lambda: ctx.run_generator())
+
+        print("generated")
 
         try:
-            await asyncio.threads.to_thread(stop_queue.get)
+            await asyncio.threads.to_thread(lambda: stop_queue.get())
         except:
             print("stop signal received")
 
