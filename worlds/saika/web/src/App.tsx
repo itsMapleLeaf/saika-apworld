@@ -5,10 +5,10 @@ import { NavButton } from "./NavButton.tsx"
 import { NavCollapse } from "./NavCollapse.tsx"
 import { ServerView } from "./ServerView.tsx"
 import { SessionView } from "./SessionView.tsx"
-import type { Server, ServerGame, Session } from "./types.ts"
+import type { GameListItemData, ServerData, SessionData } from "./types.ts"
 
 export function App() {
-	const [servers, setServers] = useState<Server[]>([
+	const [servers, setServers] = useState<ServerData[]>([
 		{
 			name: "friendsync",
 			serverAddress: "archipelago.gg:40421",
@@ -39,7 +39,7 @@ export function App() {
 		},
 	])
 
-	const [sessions, setSessions] = useState<Session[]>([
+	const [sessions, setSessions] = useState<SessionData[]>([
 		{
 			gameName: "Minecraft",
 			playerName: "MapleCraft",
@@ -77,7 +77,7 @@ export function App() {
 
 					const games = roomInfo.games
 						.filter((id) => id !== "Archipelago")
-						.map((id): ServerGame => ({ id, displayName: id }))
+						.map((id): GameListItemData => ({ id, displayName: id }))
 						.sort((a, b) =>
 							a.displayName
 								.toLocaleLowerCase()
@@ -115,6 +115,15 @@ export function App() {
 					games={server.games}
 					onSubmitSession={(input) => {
 						const id = crypto.randomUUID()
+
+						window.pywebview.api.add_session({
+							id,
+							server_address: server.serverAddress,
+							server_password: server.serverPassword,
+							game_name: input.gameName,
+							player_name: input.playerName,
+						})
+
 						setSessions((sessions) => [
 							...sessions,
 							{
@@ -210,8 +219,19 @@ export function App() {
 									label: "Delete",
 									icon: "mingcute:close-fill",
 									onClick: () => {
+										const serverSessions = new Map(
+											sessions
+												.filter((s) => s.serverId === view.server.id)
+												.map((s) => [s.id, s]),
+										)
+										for (const [id] of serverSessions) {
+											window.pywebview.api.remove_session(id)
+										}
 										setServers((servers) =>
 											servers.filter((s) => s.id !== view.server.id),
+										)
+										setSessions((sessions) =>
+											sessions.filter((s) => !serverSessions.has(s.id)),
 										)
 									},
 								},
@@ -222,6 +242,7 @@ export function App() {
 									key={view.id}
 									{...navItemProps(view)}
 									onClose={() => {
+										window.pywebview.api.remove_session(view.id)
 										setSessions((sessions) =>
 											sessions.filter((s) => s.id !== view.id),
 										)

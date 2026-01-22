@@ -1,26 +1,27 @@
-export type Server = {
+export type ServerData = {
 	id: string
 	name: string
 	serverAddress: string
 	serverPassword: string
-	games: ServerGame[]
+	games: GameListItemData[]
 }
 
-export type Session = {
+export type GameListItemData = {
+	id: string
+	displayName: string
+}
+
+export type SessionData = {
 	id: string
 	serverId: string
 	gameName: string
 	playerName: string
 }
 
-export type ServerGame = {
-	id: string
-	displayName: string
-}
-
 export type GameData = {
 	id: string
 	name: string
+	sha: string
 	itemNameMap: Record<number, string>
 	locationNameMap: Record<number, string>
 }

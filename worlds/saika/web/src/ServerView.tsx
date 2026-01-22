@@ -1,11 +1,11 @@
 import { FormButton } from "./FormButton.tsx"
-import type { ServerGame } from "./types.ts"
+import type { GameListItemData } from "./types.ts"
 
 export function ServerView({
 	games,
 	onSubmitSession,
 }: {
-	games: ServerGame[]
+	games: GameListItemData[]
 	onSubmitSession: (values: { gameName: string; playerName: string }) => unknown
 }) {
 	return (
