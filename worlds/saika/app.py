@@ -1,3 +1,4 @@
+import json
 import asyncio
 from asyncio.subprocess import DEVNULL
 import asyncio.threads
@@ -6,7 +7,8 @@ from multiprocessing import Process, Queue
 from pathlib import Path
 import subprocess
 import sys
-from typing import TypedDict
+from typing import Any, TypedDict
+from Utils import user_path
 import webview
 
 from .lib.http import wait_until_reachable
@@ -80,9 +82,32 @@ def thread_main(*args):
     asyncio.run(main(*args))
 
 
+class Storage:
+    def __init__(self) -> None:
+        self._data: dict[str, Any] = {}
+        self._file_path = Path(user_path("saika_data.json"))
+
+    def load(self) -> None:
+        if self._file_path.exists():
+            with open(self._file_path, "r", encoding="utf-8") as f:
+                self._data = json.load(f)
+
+    def save(self) -> None:
+        with open(self._file_path, "w", encoding="utf-8") as f:
+            json.dump(self._data, f, indent=4)
+
+    def get(self, key: str) -> Any | None:
+        return self._data.get(key, None)
+
+    def set(self, key: str, value: Any) -> None:
+        self._data[key] = value
+        self.save()
+
+
 class JsApi:
     def __init__(self) -> None:
         self._sessions: dict[str, Session] = {}
+        self.storage = Storage()
 
     def add_session(self, args: SessionInput):
         self._sessions[args["id"]] = Session(args)
