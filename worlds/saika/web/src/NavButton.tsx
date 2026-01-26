@@ -29,7 +29,7 @@ export function NavButton({
 				type="button"
 				onClick={onClick}
 				className={twMerge(
-					"flex min-h-10 flex-1 items-center justify-start gap-2 rounded px-3 py-2 -outline-offset-2 transition",
+					"flex min-h-10 min-w-0 flex-1 items-center justify-start gap-2 rounded px-3 py-2 -outline-offset-2 transition",
 					className,
 				)}
 				{...props}
