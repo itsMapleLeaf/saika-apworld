@@ -1,123 +1,15 @@
-import json
 import asyncio
 from asyncio.subprocess import DEVNULL
-import asyncio.threads
 import asyncio.subprocess
-from multiprocessing import Process, Queue
-import os
 from pathlib import Path
 import subprocess
 import sys
-from typing import Any, TypedDict
-from Utils import user_path
 import webview
 
+from .storage import Storage
+from .session import Session, SessionInput
 from .lib.http import wait_until_reachable
 from .lib.subprocess import ensure_killed
-
-
-class SessionInput(TypedDict):
-    id: str
-    server_address: str
-    server_password: str
-    game_name: str
-    player_name: str
-
-
-class Session:
-    def __init__(self, input: SessionInput) -> None:
-        self.id = input["id"]
-        self.input = input
-
-        self.stop_queue: Queue[None] = Queue()
-
-        self.connection_thread = Process(
-            target=thread_main,
-            args=(input, self.stop_queue),
-            daemon=True,
-        )
-        self.connection_thread.start()
-
-    def stop(self):
-        self.stop_queue.put(None)
-
-
-def thread_main(*args):
-    async def main(input: SessionInput, stop_queue: Queue):
-        from worlds.tracker.TrackerClient import TrackerGameContext
-
-        def handle_update_locations(locations: list[str]):
-            print("handle_update_locations", locations)
-            return True
-
-        def handle_update_events(events: list[str]):
-            print("handle_update_events", events)
-            return True
-
-        ctx = TrackerGameContext(
-            f"wss://{input["server_address"]}", input["server_password"]
-        )
-        ctx.auth = input["player_name"]
-        ctx.game = input["game_name"]
-        ctx.tags = {"Saika"}
-        ctx.update_callback = handle_update_locations
-        ctx.events_callback = handle_update_events
-
-        print("connecting...")
-        await ctx.connect()
-
-        print("generating...")
-        await asyncio.to_thread(lambda: ctx.run_generator())
-
-        print("generated")
-
-        try:
-            await asyncio.threads.to_thread(lambda: stop_queue.get())
-        except:
-            print("stop signal received")
-
-        await ctx.shutdown()
-
-        print("connection ended")
-
-    asyncio.run(main(*args))
-
-
-class Storage:
-
-    def __init__(self, store_name: str) -> None:
-        self._data: dict[str, Any] = {}
-        self._file_path = Path(user_path("saika_data", f"{store_name}.json"))
-
-        if self._file_path.exists():
-            with open(self._file_path, "r", encoding="utf-8") as f:
-                self._data = json.load(f)
-
-    def _save(self) -> None:
-        os.makedirs(self._file_path.parent, exist_ok=True)
-        with open(self._file_path, "w", encoding="utf-8") as f:
-            json.dump(self._data, f, indent=4)
-
-    def get(self, key: str) -> Any | None:
-        return self._data.get(key, None)
-
-    def set(self, key: str, value: Any) -> None:
-        self._data[key] = value
-        self._save()
-
-
-class JsApi:
-    def __init__(self) -> None:
-        self._sessions: dict[str, Session] = {}
-        self.storage_common = Storage("common")
-
-    def add_session(self, args: SessionInput):
-        self._sessions[args["id"]] = Session(args)
-
-    def remove_session(self, id: str):
-        session = self._sessions[id]
-        session.stop()
-        del self._sessions[id]
 
 
 async def main():
@@ -142,6 +34,32 @@ async def main():
 
     async with ensure_killed(server):
         await wait_until_reachable(server_url, timeout_seconds=10)
+        App(server_url).start()
 
-        webview.create_window(title="Saika", url=server_url, js_api=JsApi())
+
+class App:
+    def __init__(self, window_url: str) -> None:
+        self.win = webview.create_window(
+            title="Saika", url=window_url, js_api=JsApi(self)
+        )
+
+    def start(self):
         webview.start(ssl=True, debug=True)
+
+    def update_view_state(self):
+        pass  # todo: run global callback on frontend to update react state
+
+
+class JsApi:
+    def __init__(self, app: App) -> None:
+        self._app = app
+        self._sessions: dict[str, Session] = {}
+        self.storage_common = Storage("common")
+
+    def add_session(self, args: SessionInput):
+        self._sessions[args["id"]] = Session(args)
+
+    def remove_session(self, id: str):
+        session = self._sessions[id]
+        session.stop()
+        del self._sessions[id]

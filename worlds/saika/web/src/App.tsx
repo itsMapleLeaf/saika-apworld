@@ -4,7 +4,7 @@ import { Activity, type ReactNode, useState } from "react"
 import { ConnectView } from "./ConnectView.tsx"
 import { NavButton } from "./NavButton.tsx"
 import { NavCollapse } from "./NavCollapse.tsx"
-import { usePyWebViewStorageState } from "./pywebview.ts"
+import { usePyWebViewStorage, usePyWebViewStorageState } from "./pywebview.ts"
 import { ServerView } from "./ServerView.tsx"
 import { SessionView } from "./SessionView.tsx"
 import { type GameListItemData, ServerData, SessionData } from "./types.ts"
@@ -16,11 +16,22 @@ export function App() {
 		[],
 	)
 
-	const [sessions, setSessions] = usePyWebViewStorageState(
-		"sessions",
-		SessionData.array(),
-		[],
-	)
+	const [sessions, setSessions] = usePyWebViewStorage({
+		key: "sessions",
+		defaultValue: [],
+		fromSaved: (data) => {
+			const result = SessionData.array()(data)
+			if (result instanceof type.errors) {
+				console.warn("failed to load sessions:", result.summary, data)
+				return []
+			}
+			return result.map((session) => ({
+				...session,
+				connected: false,
+			}))
+		},
+		toSaved: (sessions) => SessionData.array()(sessions),
+	})
 
 	const [sessionViewId, setSessionViewId] = usePyWebViewStorageState(
 		"sessionViewId",
@@ -96,6 +107,7 @@ export function App() {
 								...input,
 								id,
 								serverId: server.id,
+								connected: true,
 							},
 						])
 					}}
@@ -103,8 +115,9 @@ export function App() {
 			),
 			sessionViews: sessions
 				.filter((session) => session.serverId === server.id)
-				.map(
-					(session): View => ({
+				.map((session) => {
+					const sessionView = {
+						session,
 						id: session.id,
 						label: session.playerName,
 						sublabel: session.gameName,
@@ -117,9 +130,11 @@ export function App() {
 								onViewIdChange={setSessionViewId}
 							/>
 						),
-					}),
-				),
+					}
+					return sessionView satisfies View
+				}),
 		}
+
 		return view satisfies View
 	})
 
@@ -151,16 +166,18 @@ export function App() {
 				<div className="basis-px self-stretch bg-gray-700/70" />
 
 				<div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto *:shrink-0">
-					{serverViews.map((view) => (
+					{serverViews.map((serverView) => (
 						<NavCollapse
-							key={view.id}
-							{...navItemProps(view)}
+							key={serverView.id}
+							{...navItemProps(serverView)}
 							menuOptions={[
 								{
 									label: "Copy Address",
 									icon: "mingcute:clipboard-fill",
 									onClick: () => {
-										navigator.clipboard.writeText(view.server.serverAddress)
+										navigator.clipboard.writeText(
+											serverView.server.serverAddress,
+										)
 									},
 								},
 								{
@@ -169,14 +186,16 @@ export function App() {
 									onClick: () => {
 										const newName = prompt(
 											"Enter a new server name:",
-											view.server.name,
+											serverView.server.name,
 										)
 
 										if (newName === null) return
 
 										setServers((servers) =>
 											servers.map((s) =>
-												s.id === view.server.id ? { ...s, name: newName } : s,
+												s.id === serverView.server.id
+													? { ...s, name: newName }
+													: s,
 											),
 										)
 									},
@@ -187,14 +206,14 @@ export function App() {
 									onClick: () => {
 										const serverSessions = new Map(
 											sessions
-												.filter((s) => s.serverId === view.server.id)
+												.filter((s) => s.serverId === serverView.server.id)
 												.map((s) => [s.id, s]),
 										)
 										for (const [id] of serverSessions) {
 											window.pywebview.api.remove_session(id)
 										}
 										setServers((servers) =>
-											servers.filter((s) => s.id !== view.server.id),
+											servers.filter((s) => s.id !== serverView.server.id),
 										)
 										setSessions((sessions) =>
 											sessions.filter((s) => !serverSessions.has(s.id)),
@@ -203,18 +222,40 @@ export function App() {
 								},
 							]}
 						>
-							{view.sessionViews.map((view) => (
-								<NavButton
-									key={view.id}
-									{...navItemProps(view)}
-									onClose={() => {
-										window.pywebview.api.remove_session(view.id)
-										setSessions((sessions) =>
-											sessions.filter((s) => s.id !== view.id),
-										)
-									}}
-								/>
-							))}
+							{serverView.sessionViews.map((sessionView) => {
+								const sessionNavItemProps = navItemProps(sessionView)
+								return (
+									<NavButton
+										key={sessionView.id}
+										{...sessionNavItemProps}
+										onClick={() => {
+											sessionNavItemProps.onClick()
+											console.log(sessionView.session.connected)
+											if (!sessionView.session.connected) {
+												window.pywebview.api.add_session({
+													id: sessionView.id,
+													server_address: serverView.server.serverAddress,
+													server_password: serverView.server.serverPassword,
+													game_name: sessionView.session.gameName,
+													player_name: sessionView.session.playerName,
+												})
+												setSessions((sessions) =>
+													sessions.map((session) => {
+														if (session.id !== sessionView.id) return session
+														return { ...session, connected: true }
+													}),
+												)
+											}
+										}}
+										onClose={() => {
+											window.pywebview.api.remove_session(sessionView.id)
+											setSessions((sessions) =>
+												sessions.filter((s) => s.id !== sessionView.id),
+											)
+										}}
+									/>
+								)
+							})}
 						</NavCollapse>
 					))}
 				</div>

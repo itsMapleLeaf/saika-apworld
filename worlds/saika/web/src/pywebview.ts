@@ -24,6 +24,38 @@ declare global {
 	}
 }
 
+export function usePyWebViewStorage<State>({
+	key,
+	defaultValue,
+	fromSaved,
+	toSaved,
+}: {
+	key: string
+	defaultValue: State
+	fromSaved: (data: unknown) => State
+	toSaved: (value: State) => unknown
+}) {
+	const [state, setState] = useState<State>(defaultValue)
+	const [loaded, setLoaded] = useState(false)
+
+	usePyWebViewApiReady(async () => {
+		const stored = await window.pywebview.api.storage_common.get(key)
+		setState(fromSaved(stored))
+		setLoaded(true)
+	})
+
+	const saveEvent = useEffectEvent((key: string, state: State) => {
+		window.pywebview.api.storage_common.set(key, toSaved(state))
+	})
+
+	useEffect(() => {
+		if (!loaded) return
+		saveEvent(key, state)
+	}, [key, state, loaded])
+
+	return [state, setState] as const
+}
+
 export function usePyWebViewStorageState<Value, DefaultValue = undefined>(
 	key: string,
 	parse: (loaded: unknown) => Value | ArkErrors,
