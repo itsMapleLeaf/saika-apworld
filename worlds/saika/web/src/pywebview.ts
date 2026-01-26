@@ -1,10 +1,10 @@
 export type PyWebviewConfigFileStore = {
-	get: (key: string) => string | null
-	set: (key: string, value: string) => void
+	get: (key: string) => unknown | null
+	set: (key: string, value: unknown) => void
 }
 
 export type PyWebviewApi = {
-	store: PyWebviewConfigFileStore
+	storage_common: PyWebviewConfigFileStore
 	add_session: (args: {
 		id: string
 		server_address: string

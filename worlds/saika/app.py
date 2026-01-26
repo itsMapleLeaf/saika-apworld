@@ -4,6 +4,7 @@ from asyncio.subprocess import DEVNULL
 import asyncio.threads
 import asyncio.subprocess
 from multiprocessing import Process, Queue
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -83,16 +84,18 @@ def thread_main(*args):
 
 
 class Storage:
-    def __init__(self) -> None:
-        self._data: dict[str, Any] = {}
-        self._file_path = Path(user_path("saika_data.json"))
 
-    def load(self) -> None:
+    def __init__(self, store_name: str) -> None:
+        self._data: dict[str, Any] = {}
+        self._file_path = Path(user_path("saika_data", f"{store_name}.json"))
+
+    def _load(self) -> None:
         if self._file_path.exists():
             with open(self._file_path, "r", encoding="utf-8") as f:
                 self._data = json.load(f)
 
-    def save(self) -> None:
+    def _save(self) -> None:
+        os.makedirs(self._file_path.parent, exist_ok=True)
         with open(self._file_path, "w", encoding="utf-8") as f:
             json.dump(self._data, f, indent=4)
 
@@ -101,13 +104,13 @@ class Storage:
 
     def set(self, key: str, value: Any) -> None:
         self._data[key] = value
-        self.save()
+        self._save()
 
 
 class JsApi:
     def __init__(self) -> None:
         self._sessions: dict[str, Session] = {}
-        self.storage = Storage()
+        self.storage_common = Storage("common")
 
     def add_session(self, args: SessionInput):
         self._sessions[args["id"]] = Session(args)
