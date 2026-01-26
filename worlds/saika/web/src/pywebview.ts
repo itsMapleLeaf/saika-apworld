@@ -8,6 +8,7 @@ export type PyWebviewConfigFileStore = {
 
 export type PyWebviewApi = {
 	storage_common: PyWebviewConfigFileStore
+	notify_ready: () => void
 	add_session: (args: {
 		id: string
 		server_address: string

@@ -1,15 +1,58 @@
 import * as AP from "archipelago.js"
 import { type } from "arktype"
-import { Activity, type ReactNode, useState } from "react"
+import { Activity, type ReactNode, useEffect, useState } from "react"
 import { ConnectView } from "./ConnectView.tsx"
 import { NavButton } from "./NavButton.tsx"
 import { NavCollapse } from "./NavCollapse.tsx"
-import { usePyWebViewStorage, usePyWebViewStorageState } from "./pywebview.ts"
+import {
+	usePyWebViewApiReady,
+	usePyWebViewStorage,
+	usePyWebViewStorageState,
+} from "./pywebview.ts"
 import { ServerView } from "./ServerView.tsx"
 import { SessionView } from "./SessionView.tsx"
 import { type GameListItemData, ServerData, SessionData } from "./types.ts"
 
+type AppState = {
+	servers: Record<
+		string,
+		{
+			name: string
+			address: string
+			password: string
+			games: ReadonlyArray<{
+				id: string
+				display_name: string
+			}>
+			sessions: Record<
+				string,
+				{
+					game_name: string
+					player_name: string
+					connection_status?: "offline" | "connecting" | "online"
+				}
+			>
+		}
+	>
+}
+
+declare global {
+	var updateAppState: unknown
+}
+
 export function App() {
+	const [state, setState] = useState<AppState>({
+		servers: {},
+	})
+	useEffect(() => console.log(state), [state])
+
+	usePyWebViewApiReady(() => {
+		window.updateAppState = (newState: AppState) => {
+			setState(newState)
+		}
+		window.pywebview.api.notify_ready()
+	})
+
 	const [servers, setServers] = usePyWebViewStorageState(
 		"servers",
 		ServerData.array(),
