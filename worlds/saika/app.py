@@ -89,7 +89,6 @@ class Storage:
         self._data: dict[str, Any] = {}
         self._file_path = Path(user_path("saika_data", f"{store_name}.json"))
 
-    def _load(self) -> None:
         if self._file_path.exists():
             with open(self._file_path, "r", encoding="utf-8") as f:
                 self._data = json.load(f)

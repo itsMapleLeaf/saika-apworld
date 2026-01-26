@@ -1,60 +1,54 @@
 import * as AP from "archipelago.js"
+import { type } from "arktype"
 import { Activity, type ReactNode, useState } from "react"
 import { ConnectView } from "./ConnectView.tsx"
 import { NavButton } from "./NavButton.tsx"
 import { NavCollapse } from "./NavCollapse.tsx"
+import { usePyWebViewStorageState } from "./pywebview.ts"
 import { ServerView } from "./ServerView.tsx"
 import { SessionView } from "./SessionView.tsx"
-import type { GameListItemData, ServerData, SessionData } from "./types.ts"
+import { type GameListItemData, ServerData, SessionData } from "./types.ts"
 
 export function App() {
-	const [servers, setServers] = useState<ServerData[]>([
-		{
-			name: "friendsync",
-			serverAddress: "archipelago.gg:40421",
-			serverPassword: "",
-			id: "908464b5-93f6-4583-b05e-b5a2c0e43ac1",
-			games: [
-				{
-					id: "ChecksFinder",
-					displayName: "ChecksFinder",
-				},
-				{
-					id: "Minecraft",
-					displayName: "Minecraft",
-				},
-				{
-					id: "Portal 2",
-					displayName: "Portal 2",
-				},
-				{
-					id: "Sonic Riders",
-					displayName: "Sonic Riders",
-				},
-				{
-					id: "Starcraft 2",
-					displayName: "Starcraft 2",
-				},
-			],
-		},
-	])
+	const [servers, setServers] = usePyWebViewStorageState(
+		"servers",
+		ServerData.array(),
+		[],
+	)
 
-	const [sessions, setSessions] = useState<SessionData[]>([
-		{
-			gameName: "Minecraft",
-			playerName: "MapleCraft",
-			id: "d2fb52dc-7156-400c-8c53-5b2bec61d9d8",
-			serverId: "908464b5-93f6-4583-b05e-b5a2c0e43ac1",
-		},
-		{
-			gameName: "Portal 2",
-			playerName: "MapleScience",
-			id: "08757725-94ad-45bc-b022-5a00efa6dfc8",
-			serverId: "908464b5-93f6-4583-b05e-b5a2c0e43ac1",
-		},
-	])
+	const [sessions, setSessions] = usePyWebViewStorageState(
+		"sessions",
+		SessionData.array(),
+		[],
+	)
 
-	const [sessionViewId, setSessionViewId] = useState<string>()
+	const [sessionViewId, setSessionViewId] = usePyWebViewStorageState(
+		"sessionViewId",
+		type.string,
+	)
+
+	const addServer = async (input: {
+		name: string
+		serverAddress: string
+		serverPassword: string
+	}): Promise<void> => {
+		const client = new AP.Client()
+		const roomInfo = await client.socket.connect(input.serverAddress)
+
+		const id = crypto.randomUUID()
+
+		const games = roomInfo.games
+			.filter((id) => id !== "Archipelago")
+			.map((id): GameListItemData => ({ id, displayName: id }))
+			.sort((a, b) =>
+				a.displayName
+					.toLocaleLowerCase()
+					.localeCompare(b.displayName.toLocaleLowerCase()),
+			)
+
+		setServers((servers) => [...servers, { ...input, id, games }])
+		setCurrentViewId(id)
+	}
 
 	type View = {
 		id: string
@@ -67,35 +61,7 @@ export function App() {
 	const connectView: View = {
 		id: "Connect",
 		icon: "mingcute:plugin-fill",
-		content: (
-			<ConnectView
-				onSubmitServer={async (input) => {
-					const client = new AP.Client()
-					const roomInfo = await client.socket.connect(input.serverAddress)
-
-					const id = crypto.randomUUID()
-
-					const games = roomInfo.games
-						.filter((id) => id !== "Archipelago")
-						.map((id): GameListItemData => ({ id, displayName: id }))
-						.sort((a, b) =>
-							a.displayName
-								.toLocaleLowerCase()
-								.localeCompare(b.displayName.toLocaleLowerCase()),
-						)
-
-					setServers((servers) => [
-						...servers,
-						{
-							...input,
-							id,
-							games: games,
-						},
-					])
-					setCurrentViewId(id)
-				}}
-			/>
-		),
+		content: <ConnectView onSubmitServer={addServer} />,
 	}
 
 	const settingsView: View = {

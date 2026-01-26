@@ -1,22 +1,27 @@
-export type ServerData = {
-	id: string
-	name: string
-	serverAddress: string
-	serverPassword: string
-	games: GameListItemData[]
-}
+import { type } from "arktype"
 
-export type GameListItemData = {
-	id: string
-	displayName: string
-}
+export type GameListItemData = typeof GameListItemData.inferOut
+export const GameListItemData = type({
+	id: "string",
+	displayName: "string",
+})
 
-export type SessionData = {
-	id: string
-	serverId: string
-	gameName: string
-	playerName: string
-}
+export type ServerData = typeof ServerData.inferOut
+export const ServerData = type({
+	id: "string",
+	name: "string",
+	serverAddress: "string",
+	serverPassword: "string",
+	games: GameListItemData.array(),
+})
+
+export type SessionData = typeof SessionData.inferOut
+export const SessionData = type({
+	id: "string",
+	serverId: "string",
+	gameName: "string",
+	playerName: "string",
+})
 
 export type GameData = {
 	id: string

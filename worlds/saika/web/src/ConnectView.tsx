@@ -14,7 +14,6 @@ export function ConnectView({
 			<h2 className="text-center font-light text-2xl text-gray-400">Connect</h2>
 			<form
 				className="flex w-80 flex-col gap-3 rounded-md bg-gray-800 p-3"
-				method="post"
 				action={async (formData) => {
 					const name = formData.get("name") as string
 					const serverAddress = formData.get("address") as string

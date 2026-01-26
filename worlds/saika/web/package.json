@@ -16,6 +16,7 @@
 		"@iconify/react": "^6.0.2",
 		"@tailwindcss/vite": "^4.1.18",
 		"archipelago.js": "^2.0.4",
+		"arktype": "^2.1.29",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"tailwind-merge": "^3.4.0",
