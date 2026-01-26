@@ -53,7 +53,7 @@ export function NavCollapse(props: NavCollapseProps) {
 					</Menu.Trigger>
 					<Menu.Portal>
 						<Menu.Positioner side="right" sideOffset={12} align="start">
-							<Menu.Popup className="flex min-w-40 origin-(--transform-origin) flex-col gap-1 rounded-md bg-gray-900 p-1 transition duration-100 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0">
+							<Menu.Popup className="flex min-w-40 origin-(--transform-origin) flex-col gap-1 rounded-md border border-gray-800 bg-gray-900 p-1 shadow-md transition duration-100 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0">
 								{props.menuOptions.map((opt) => (
 									<Menu.Item
 										key={opt.id || opt.label}
