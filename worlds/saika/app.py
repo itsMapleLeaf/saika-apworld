@@ -1,17 +1,17 @@
 import asyncio
 from asyncio.subprocess import DEVNULL
 import asyncio.subprocess
-from dataclasses import dataclass
 import dataclasses
 import json
 from pathlib import Path
 import subprocess
 import sys
-from typing import Final, Literal
+from typing import Final
 from uuid import uuid4
 import webview
+from Utils import local_path
 
-from .storage import Storage
+from .app_state import ServerState, SessionState, AppState
 from .lib.http import wait_until_reachable
 from .lib.subprocess import ensure_killed
 
@@ -42,39 +42,11 @@ async def main():
         app._start()
 
 
-@dataclass
-class AppState:
-    servers: dict[str, "ServerState"] = dataclasses.field(default_factory=dict)
-
-
-@dataclass
-class ServerState:
-    name: str
-    address: str
-    password: str
-    games: list["ServerGameListData"] = dataclasses.field(default_factory=list)
-    sessions: dict[str, "SessionState"] = dataclasses.field(default_factory=dict)
-
-
-@dataclass
-class ServerGameListData:
-    id: str
-    display_name: str
-
-
-@dataclass
-class SessionState:
-    game_name: str
-    player_name: str
-    connection_status: Literal["offline", "connecting", "online"] = "offline"
-
-
 class App:
-    def __init__(self, window_url: str) -> None:
-        self._state: Final = AppState()
-        self._storage: Final = Storage("common")
+    _state_file_path: Final = Path(local_path("saika_data", "app_state.json"))
 
-        self._load_state()
+    def __init__(self, window_url: str) -> None:
+        self._state: Final = self._load_state()
 
         if not (
             win := webview.create_window(title="Saika", url=window_url, js_api=self)
@@ -87,55 +59,23 @@ class App:
     def _start(self):
         webview.start(ssl=True, debug=True)
 
-    def _load_state(self) -> None:
-        servers_data = self._storage.get("servers") or {}
+    @classmethod
+    def _load_state(cls) -> AppState:
+        if not cls._state_file_path.exists():
+            return AppState()
 
-        for server_id, server_dict in servers_data.items():
-            server_state = ServerState(
-                name=server_dict["name"],
-                address=server_dict["address"],
-                password=server_dict["password"],
-            )
-
-            sessions_data = server_dict.get("sessions", {})
-            for session_id, session_dict in sessions_data.items():
-                session_state = SessionState(
-                    game_name=session_dict["game_name"],
-                    player_name=session_dict["player_name"],
-                )
-                server_state.sessions[session_id] = session_state
-
-            self._state.servers[server_id] = server_state
+        with open(cls._state_file_path, "r", encoding="utf-8") as state_file:
+            return AppState.from_saved(json.load(state_file))
 
     def _save_state(self):
-        servers_data = {
-            server_id: {
-                "name": server_state.name,
-                "address": server_state.address,
-                "password": server_state.password,
-                "sessions": {
-                    session_id: {
-                        "game_name": session_state.game_name,
-                        "player_name": session_state.player_name,
-                    }
-                    for session_id, session_state in server_state.sessions.items()
-                },
-            }
-            for server_id, server_state in self._state.servers.items()
-        }
-
-        self._storage.set("servers", servers_data)
+        with open(self._state_file_path, "w", encoding="utf-8") as state_file:
+            json.dump(self._state.saved, state_file, indent=4)
 
     def _send_state_update(self):
         if not self._win_ready:
             return
 
-        servers_data = {
-            server_id: dataclasses.asdict(server_state)
-            for server_id, server_state in self._state.servers.items()
-        }
-
-        state_json = json.dumps({"servers": servers_data})
+        state_json = json.dumps(dataclasses.asdict(self._state))
         self._win.evaluate_js(f"window.updateAppState({state_json})")
 
     def _commit_state(self):
